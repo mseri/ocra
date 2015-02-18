@@ -1,0 +1,35 @@
+{
+  "name": "ocra",
+  "version": "0.0.1",
+  "description": "OCR API for expensybox",
+  "main": "app.js",
+  "scripts": {
+    "develop": "DEBUG=app,app:* nodemon ./bin/www",
+    "start": "DEBUG=app,app:* node ./bin/www",
+    "start-win": "set DEBUG=app,app:* && node ./bin/www",
+    "test": "node ./tests/ocr.tests.js",
+    "test-hash": "node ./tests/hash.tests.js",
+    "test-upload": "node ./tests/upload_and_process.tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://none"
+  },
+  "author": "Team 19",
+  "license": "ISC",
+  "homepage": "http://none",
+  "dependencies": {
+    "debug": "^2.1.0",
+    "express": "^4.10.6",
+    "body-parser": "^1.12.0",
+    "node-tesseract": "^0.2.6",
+    "nodemon": "^1.2.1",
+    "request": "^2.51.0",
+    "temp": "^0.8.1",
+    "jsonwebtoken": "^3.2.2",
+    "multer": "^0.1.7"
+  },
+  "devDependencies": {
+    "supertest": "^0.15.0"
+  }
+}
