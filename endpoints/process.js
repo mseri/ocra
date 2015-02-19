@@ -33,21 +33,45 @@ function check_name(req, res, next) {
 
 // setup multer middleware to write files in the /tmp
 // folder. Rename them an log upload start and completion
-// TODO: add error check?
 var multer_mw = multer({ dest: location,
   rename: function (fieldname, filename) {
     return imageName;
   },
   onFileUploadStart: function (file) {
-    log(file.originalname + ' is starting ...');
+    if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg' && file.mimetype !== 'image/jpeg') {
+      return false;
+    }
+    console.log(file.originalname + ' is starting ...');
+  },
+  onFileUploadData: function (file, data) {
+    console.log(data.length + ' of ' + file.fieldname + ' arrived')
   },
   onFileUploadComplete: function (file) {
-    log(file.fieldname + ' uploaded to  ' + file.path);
+    console.log(file.fieldname + ' uploaded to  ' + file.path);
+  },
+  onParseStart: function () {
+    console.log('Form parsing started at: ', new Date())
+  },
+  onParseEnd: function (req, next) {
+    console.log('Form parsing completed at: ', new Date());
+    next(); //call the next middleware, if next() is not called then request will hang and no response will be returned
+  },
+  onFileSizeLimit: function (file) {
+    console.log('Failed: ', file.originalname);
+  },
+  onFilesLimit: function () {
+    console.log('Crossed file limit!')
+  },
+  onFieldsLimit: function () {
+    console.log('Crossed fields limit!')
+  },
+  onPartsLimit: function () {
+    console.log('Crossed parts limit!')
   },
   onError: function (error, next) {
-      logError(error);
-      next(error);
-    }
+    logError(error);
+    next(error);
+  }
 });
 
 // process the file and return the total
