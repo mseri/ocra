@@ -14,7 +14,7 @@ var ocr    = require('../lib/ocr')
     , auth = require('../lib/auth');
 
 // how can I cange the location?
-var location    = path.resolve(".") + "/tmp/"
+var location    = null
     , imageName = null;
 
 // check if sha1 fields is present
@@ -41,32 +41,33 @@ var multer_mw = multer({ dest: location,
     if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg' && file.mimetype !== 'image/jpeg') {
       return false;
     }
-    console.log(file.originalname + ' is starting ...');
+    log(file.originalname + ' is starting ...');
   },
   onFileUploadData: function (file, data) {
-    console.log(data.length + ' of ' + file.fieldname + ' arrived')
+    //console.log(data.length + ' of ' + file.fieldname + ' arrived')
   },
   onFileUploadComplete: function (file) {
-    console.log(file.fieldname + ' uploaded to  ' + file.path);
+    log(file.fieldname + ' uploaded to  ' + file.path);
+    location = file.path
   },
   onParseStart: function () {
-    console.log('Form parsing started at: ', new Date())
+    //console.log('Form parsing started at: ', new Date())
   },
   onParseEnd: function (req, next) {
-    console.log('Form parsing completed at: ', new Date());
+    //console.log('Form parsing completed at: ', new Date());
     next(); //call the next middleware, if next() is not called then request will hang and no response will be returned
   },
   onFileSizeLimit: function (file) {
-    console.log('Failed: ', file.originalname);
+    logError('Failed: ', file.originalname);
   },
   onFilesLimit: function () {
-    console.log('Crossed file limit!')
+    logError('Crossed file limit!')
   },
   onFieldsLimit: function () {
-    console.log('Crossed fields limit!')
+    logError('Crossed fields limit!')
   },
   onPartsLimit: function () {
-    console.log('Crossed parts limit!')
+    logError('Crossed parts limit!')
   },
   onError: function (error, next) {
     logError(error);
@@ -77,22 +78,30 @@ var multer_mw = multer({ dest: location,
 // process the file and return the total
 // or error 401 in case of error
 function get_total(req, res, next) {
-  ocr.process(location + imageName, function(err, total) {
-    if (err) {
-      log("Unable to get total from ", imageName);
-      logError(err);
-      res.end(err, 401);
-    } else {
-      log('OCR total:', total);
-      var success = {
-        sha1: imageName,
-        total: total
-      }; 
-      log('Success: ', success);
-      res.status(200);
-      res.json(success);
-    }
-  });
+  
+  if (location) {
+    ocr.process(location, function(err, total) {
+      if (err) {
+        log("Unable to get total from ", imageName);
+        logError(err);
+        res.status(401);
+        res.end(err);
+      } else {
+        log('OCR total:', total);
+        var success = {
+          sha1: imageName,
+          total: total
+        }; 
+        log('Success: ', success);
+        res.status(200);
+        res.json(success);
+      }
+    });
+  } else {
+    logError("File location not received");
+    res.status(401);
+    res.end('File location not received');
+  }
 }
 
 // this is the route handler. First check auth. If so, 
