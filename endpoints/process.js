@@ -21,13 +21,13 @@ var location    = null
 // if yes the middleware lets you through
 // if no we abort returning a 401 error
 function check_name(req, res, next) {
-  imageName = req.headers['x-custom-sha1'];
+  imageName = (req.body && req.body.image_sha1) || req.headers['ocra-image-sha1'];
 
   if (imageName != null) {
     next();
   } else {
-    logError("req.headers['x-custom-sha1'] not present. Cannot proceed");
-    res.end("req.headers['x-custom-sha1'] not present. Cannot proceed", 401);
+    logError("'ocra-image-sha1' not present. Cannot proceed");
+    res.end("'ocra-image-sha1' not present. Cannot proceed", 401);
   }
 }
 
