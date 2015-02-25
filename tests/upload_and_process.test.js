@@ -11,8 +11,7 @@ var boundary = Math.random();
 var imageName = __dirname + '/IMG_4300.JPG';
 var sha1Image = "748fa97bd26133c7b0f514fb68f4ba394bad46b200a777cbdab90dd0a0b0799d";
 
-var string_token = hash.generateUUID();
-var access_token = hash.hashString(string_token + config.secretKey);
+var access_token = config.secretKey;
 
 var app = require('../app');
 
@@ -22,7 +21,6 @@ request(app)
   .post('/upload')
   .field('Content-Type', 'multipart/form-data')
   .attach('image', imageName)
-  .set('ocra-string-token', string_token)
   .set('ocra-access-token', access_token)
   .set('ocra-image-sha1', sha1Image)
   .expect(200)
@@ -40,7 +38,18 @@ request(app)
   .post('/upload')
   .end(function (err, res) {  
     if (res.status == 401) {
-      console.log("Success. Unauthorised connection rejected.");
+      console.log("Success. Unauthorised connection '0' rejected.");
+    } else {
+      console.log("Error...");
+    }
+  });
+
+request(app)
+  .post('/upload')
+  .set('ocra-access-token', 'asdfgh')
+  .end(function (err, res) {  
+    if (res.status == 401) {
+      console.log("Success. Unauthorised connection '1' rejected.");
     } else {
       console.log("Error...");
     }
